@@ -179,6 +179,22 @@ export class GameEngine {
             localStorage.setItem('rondo_best_streak', this.bestStreak.toString());
         }
 
+        // Dynamic difficulty level progression as streak increases!
+        const prevDifficulty = this.difficulty;
+        if (this.passStreak >= 25) {
+            this.difficulty = 'pro';
+        } else if (this.passStreak >= 15) {
+            this.difficulty = 'hard';
+        } else if (this.passStreak >= 7 && (prevDifficulty === 'easy')) {
+            this.difficulty = 'medium';
+        }
+
+        // Show difficulty level up alert on screen if difficulty changes
+        if (this.difficulty !== prevDifficulty) {
+            this.renderer.addFloatingText(`MALDINI UPGRADED TO ${this.difficulty.toUpperCase()}! 🔥`, this.defender.x, this.defender.y - 35, '#ff3b5c');
+            sound.playCombo(3);
+        }
+
         // Combo Multiplier calculation (Every 10 passes = +1x multiplier)
         const newMultiplier = Math.floor(this.passStreak / 10) + 1;
         if (newMultiplier > this.comboMultiplier) {

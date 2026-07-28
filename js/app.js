@@ -225,6 +225,13 @@ class App {
             this.game.settings.showGuidelines = e.target.checked;
         });
 
+        document.getElementById('setting-default-diff').addEventListener('change', (e) => {
+            this.selectedDifficulty = e.target.value;
+            if (this.game) {
+                this.game.difficulty = e.target.value;
+            }
+        });
+
         // Turnover callback from game engine
         this.game.onTurnoverCallback = (data) => {
             this.handleGameTurnover(data);
@@ -301,6 +308,12 @@ class App {
         const progressPct = (progressInTier / 10) * 100;
         this.hudComboProgress.style.width = `${progressPct}%`;
         this.hudComboStreakText.innerText = `${progressInTier} / 10 passes to next tier`;
+
+        // Dynamically update HUD Difficulty Tag Badge
+        if (this.game.difficulty) {
+            this.hudDifficultyTag.innerText = this.game.difficulty.toUpperCase();
+            this.hudDifficultyTag.className = `difficulty-tag tag-${this.game.difficulty}`;
+        }
 
         if (this.game.ball.owner) {
             this.hudCarrierName.innerText = `${this.game.ball.owner.name} (Active Player)`;
