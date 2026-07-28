@@ -1,0 +1,23 @@
+{
+  "name": "rondo-fc",
+  "version": "1.0.0",
+  "description": "Master of Keep-Away: 5v1 Football Rondo simulation featuring solo AI play, local multiplayer, and WebRTC online peer-to-peer multiplayer.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "football",
+    "rondo",
+    "game",
+    "javascript",
+    "canvas",
+    "webrtc",
+    "peerjs",
+    "ai",
+    "multiplayer"
+  ],
+  "author": "Sachidanandm",
+  "license": "MIT"
+}
