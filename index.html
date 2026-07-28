@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rondo FC - Master of Keep-Away (5v1 Football)</title>
+    <meta name="description" content="Ultimate 5v1 Football Rondo Keep-Away game. Master passing lanes, outsmart AI defenders, or challenge friends in local & online multiplayer.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PeerJS for WebRTC P2P Online Multiplayer -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app-viewport">
+        <!-- Canvas Background Game Field -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Dynamic Ambient Lighting & Stadium Smoke overlay -->
+        <div class="stadium-overlay"></div>
+
+        <!-- HUD UI Overlay (Visible during active gameplay) -->
+        <div id="hud-overlay" class="hidden">
+            <div class="hud-top-bar">
+                <div class="hud-card score-card">
+                    <span class="hud-label">PASSES</span>
+                    <span id="hud-score-value" class="hud-value">0</span>
+                </div>
+
+                <div class="hud-card combo-card">
+                    <div class="combo-title-row">
+                        <span class="hud-label">COMBO MULTIPLIER</span>
+                        <span id="hud-combo-multiplier" class="combo-badge">1x</span>
+                    </div>
+                    <div class="combo-bar-wrapper">
+                        <div id="hud-combo-progress" class="combo-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="hud-combo-streak-text" class="combo-subtext">0 / 10 passes to next tier</span>
+                </div>
+
+                <div class="hud-card high-score-card">
+                    <span class="hud-label">BEST STREAK</span>
+                    <span id="hud-best-streak" class="hud-value gold-text">0</span>
+                </div>
+            </div>
+
+            <div class="hud-bottom-bar">
+                <div class="hud-card defender-info-card">
+                    <span class="hud-label">DEFENDER</span>
+                    <div class="defender-badge">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span id="hud-defender-name">AI Defender</span>
+                    </div>
+                    <span id="hud-difficulty-tag" class="difficulty-tag tag-medium">MEDIUM</span>
+                </div>
+
+                <div class="hud-card possession-card">
+                    <span class="hud-label">CURRENT BALL CARRIER</span>
+                    <div id="hud-ball-carrier" class="carrier-badge">
+                        <span class="player-dot p1-dot"></span>
+                        <span id="hud-carrier-name">Player 1 (You)</span>
+                    </div>
+                </div>
+
+                <div class="hud-action-btns">
+                    <button id="btn-sound-toggle" class="icon-btn" title="Toggle Sound">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    <button id="btn-pause-game" class="icon-btn" title="Pause Game">
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Floating Controls Tip -->
+            <div id="controls-tip" class="controls-tip-box">
+                <i class="fa-solid fa-hand-pointer"></i> Click teammate, press keys <strong>1-5</strong>, or use <strong>Mouse Aim + Left Click / Space</strong> to pass!
+            </div>
+        </div>
+
+        <!-- MAIN MENU MODAL -->
+        <div id="main-menu-modal" class="modal-overlay">
+            <div class="modal-card main-menu-card glass-panel">
+                <div class="brand-header">
+                    <div class="brand-badge"><i class="fa-solid fa-futbol spin-icon"></i> 5v1 KEEP-AWAY</div>
+                    <h1 class="brand-title">RONDO <span class="gradient-text">FC</span></h1>
+                    <p class="brand-subtitle">Master spacing, open passing lanes, & maintain ultimate possession.</p>
+                </div>
+
+                <div class="menu-actions">
+                    <button id="btn-start-solo" class="btn btn-primary btn-glow">
+                        <div class="btn-content">
+                            <i class="fa-solid fa-user-ninja btn-icon"></i>
+                            <div class="btn-text">
+                                <span class="btn-title">SOLO MODE</span>
+                                <span class="btn-desc">1 Human Player + 4 AI Teammates vs AI Defender</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                    </button>
+
+                    <button id="btn-open-multiplayer" class="btn btn-secondary">
+                        <div class="btn-content">
+                            <i class="fa-solid fa-users btn-icon"></i>
+                            <div class="btn-text">
+                                <span class="btn-title">MULTIPLAYER MODE</span>
+                                <span class="btn-desc">2 to 6 Players (Local Pass & Play or WebRTC Online)</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                    </button>
+
+                    <button id="btn-open-settings" class="btn btn-tertiary">
+                        <div class="btn-content">
+                            <i class="fa-solid fa-sliders btn-icon"></i>
+                            <div class="btn-text">
+                                <span class="btn-title">SETTINGS & DIFFICULTY</span>
+                                <span class="btn-desc">Adjust AI behavior, sound, controls, & visuals</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-gear arrow-icon"></i>
+                    </button>
+                </div>
+
+                <div class="menu-footer">
+                    <div class="footer-stat">
+                        <i class="fa-solid fa-trophy gold-icon"></i>
+                        <span>ALL-TIME RECORD: <strong id="menu-record-score">0</strong> PASSES</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MULTIPLAYER / MODE SELECT MODAL -->
+        <div id="mode-select-modal" class="modal-overlay hidden">
+            <div class="modal-card mode-card glass-panel">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-gamepad"></i> CHOOSE PLAYERS & MODE</h2>
+                    <button id="btn-close-mode-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <!-- Mode Type Tabs -->
+                <div class="tab-group">
+                    <button id="tab-local-mode" class="tab-btn active"><i class="fa-solid fa-couch"></i> Local (Same Screen)</button>
+                    <button id="tab-online-mode" class="tab-btn"><i class="fa-solid fa-wifi"></i> Online P2P Room</button>
+                </div>
+
+                <!-- Local Player Selector -->
+                <div id="local-mode-section" class="mode-section">
+                    <label class="section-label">Select Number of Human Players:</label>
+                    <div class="player-count-grid">
+                        <button class="count-btn" data-humans="2">
+                            <span class="count-num">2</span>
+                            <span class="count-sub">2 Humans + 4 AI</span>
+                        </button>
+                        <button class="count-btn" data-humans="3">
+                            <span class="count-num">3</span>
+                            <span class="count-sub">3 Humans + 3 AI</span>
+                        </button>
+                        <button class="count-btn active" data-humans="4">
+                            <span class="count-num">4</span>
+                            <span class="count-sub">4 Humans + 2 AI</span>
+                        </button>
+                        <button class="count-btn" data-humans="5">
+                            <span class="count-num">5</span>
+                            <span class="count-sub">5 Humans + 1 AI Def</span>
+                        </button>
+                        <button class="count-btn" data-humans="6">
+                            <span class="count-num">6</span>
+                            <span class="count-sub">6 Humans (Full Rondo)</span>
+                        </button>
+                    </div>
+
+                    <!-- AI Difficulty Level Selector -->
+                    <div class="difficulty-section">
+                        <label class="section-label">AI Defender Difficulty:</label>
+                        <div class="difficulty-grid">
+                            <button class="diff-btn" data-diff="easy">EASY</button>
+                            <button class="diff-btn active" data-diff="medium">MEDIUM</button>
+                            <button class="diff-btn" data-diff="hard">HARD</button>
+                            <button class="diff-btn" data-diff="pro">PRO</button>
+                        </div>
+                    </div>
+
+                    <button id="btn-launch-local-game" class="btn btn-primary btn-glow btn-full">
+                        START LOCAL MATCH <i class="fa-solid fa-play"></i>
+                    </button>
+                </div>
+
+                <!-- Online Room Section -->
+                <div id="online-mode-section" class="mode-section hidden">
+                    <div class="online-grid">
+                        <div class="online-box">
+                            <h3><i class="fa-solid fa-plus-circle"></i> Create Room</h3>
+                            <p>Host a private room and share room code with friends.</p>
+                            <button id="btn-create-room" class="btn btn-secondary btn-full">CREATE PRIVATE LOBBY</button>
+                        </div>
+                        <div class="online-box">
+                            <h3><i class="fa-solid fa-right-to-bracket"></i> Join Room</h3>
+                            <p>Enter 6-digit room code to join an existing session.</p>
+                            <div class="code-input-row">
+                                <input type="text" id="room-code-input" placeholder="e.g. RND889" maxlength="6">
+                                <button id="btn-join-room" class="btn btn-primary">JOIN</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Online Lobby Status Card -->
+                    <div id="online-lobby-status" class="lobby-card hidden">
+                        <div class="lobby-header">
+                            <span>ROOM CODE: <strong id="lobby-room-code" class="gold-text">------</strong></span>
+                            <button id="btn-copy-code" class="btn-small"><i class="fa-solid fa-copy"></i> Copy</button>
+                        </div>
+                        <div class="lobby-player-list" id="lobby-player-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                        <div class="lobby-footer">
+                            <p class="lobby-tip"><i class="fa-solid fa-circle-info"></i> Unfilled slots will be automatically controlled by intelligent AI.</p>
+                            <button id="btn-start-online-game" class="btn btn-primary btn-glow btn-full" disabled>
+                                LAUNCH MATCH (HOST ONLY)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS MODAL -->
+        <div id="settings-modal" class="modal-overlay hidden">
+            <div class="modal-card settings-card glass-panel">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-gear"></i> GAME SETTINGS</h2>
+                    <button id="btn-close-settings-modal" class="btn-close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="settings-body">
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-title">Sound Effects & SFX</span>
+                            <span class="setting-desc">Kicks, crowd sounds, and whistle audio</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="setting-sfx" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-title">Passing Guideline</span>
+                            <span class="setting-desc">Show dynamic pass vector line preview & defender shadow cone</span>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="setting-guidelines" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-title">Default AI Difficulty</span>
+                            <span class="setting-desc">Speed & interception prediction quality</span>
+                        </div>
+                        <select id="setting-default-diff" class="custom-select">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                            <option value="pro">Pro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAUSE MODAL -->
+        <div id="pause-modal" class="modal-overlay hidden">
+            <div class="modal-card pause-card glass-panel text-center">
+                <h2><i class="fa-solid fa-circle-pause"></i> MATCH PAUSED</h2>
+                <div class="pause-actions">
+                    <button id="btn-resume-game" class="btn btn-primary btn-glow btn-full">RESUME MATCH</button>
+                    <button id="btn-restart-game" class="btn btn-secondary btn-full">RESTART MATCH</button>
+                    <button id="btn-quit-to-menu" class="btn btn-tertiary btn-full">QUIT TO MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAME OVER / TURNOVER MODAL -->
+        <div id="game-over-modal" class="modal-overlay hidden">
+            <div class="modal-card game-over-card glass-panel text-center">
+                <div class="interception-banner">
+                    <div class="whistle-icon"><i class="fa-solid fa-shield-cat"></i></div>
+                    <h2 class="game-over-title">INTERCEPTED!</h2>
+                    <p id="turnover-desc-text" class="turnover-sub">The defender intercepted the pass!</p>
+                </div>
+
+                <div class="stats-summary-grid">
+                    <div class="summary-box">
+                        <span class="summary-label">CONSECUTIVE PASSES</span>
+                        <span id="final-pass-count" class="summary-val">0</span>
+                    </div>
+                    <div class="summary-box">
+                        <span class="summary-label">MAX COMBO TIER</span>
+                        <span id="final-combo-tier" class="summary-val gold-text">1x</span>
+                    </div>
+                </div>
+
+                <div id="next-defender-banner" class="next-defender-box hidden">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>NEXT DEFENDER: <strong id="next-defender-name" class="highlight-text">Player 2</strong></span>
+                </div>
+
+                <div class="game-over-actions">
+                    <button id="btn-play-again" class="btn btn-primary btn-glow btn-full">
+                        <i class="fa-solid fa-rotate-right"></i> PLAY AGAIN / NEXT ROUND
+                    </button>
+                    <button id="btn-game-over-menu" class="btn btn-tertiary btn-full">
+                        <i class="fa-solid fa-house"></i> MAIN MENU
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Application Script Bundles -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
