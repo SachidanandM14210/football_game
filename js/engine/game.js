@@ -206,7 +206,7 @@ export class GameEngine {
         }
 
         this.renderer.addImpactParticles(receiver.x, receiver.y, 10, receiver.color);
-        sound.playClick();
+        sound.playCatch();
     }
 
     handleInterception() {

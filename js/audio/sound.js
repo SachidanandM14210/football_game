@@ -30,33 +30,33 @@ class SoundEngine {
         return this.enabled;
     }
 
-    // Play Ball Pass Kick sound
-    playKick(power = 1.0) {
+    // Play Ball Pass Kick sound (Passing SFX)
+    playPass(power = 1.0) {
         if (!this.enabled) return;
         this.ensureContext();
         if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
         
-        // Low sub thud
+        // Low sub thud (Boot contact)
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(140 * power, now);
-        osc.frequency.exponentialRampToValueAtTime(30, now + 0.12);
+        osc.frequency.setValueAtTime(160 * Math.min(1.2, power), now);
+        osc.frequency.exponentialRampToValueAtTime(35, now + 0.14);
 
-        gain.gain.setValueAtTime(0.6 * Math.min(power, 1.2), now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        gain.gain.setValueAtTime(0.7 * Math.min(power, 1.2), now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
 
         osc.connect(gain);
         gain.connect(this.ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.13);
+        osc.stop(now + 0.15);
 
-        // Click / shoe pop
-        const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.03, this.ctx.sampleRate);
+        // Air swoosh / boot click pop
+        const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.04, this.ctx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
         for (let i = 0; i < noiseBuffer.length; i++) {
             output[i] = Math.random() * 2 - 1;
@@ -67,18 +67,61 @@ class SoundEngine {
 
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'bandpass';
-        filter.frequency.value = 1200;
+        filter.frequency.value = 1400;
 
         const noiseGain = this.ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.3, now);
-        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+        noiseGain.gain.setValueAtTime(0.35, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.005, now + 0.04);
 
         noise.connect(filter);
         filter.connect(noiseGain);
         noiseGain.connect(this.ctx.destination);
 
         noise.start(now);
-        noise.stop(now + 0.04);
+        noise.stop(now + 0.05);
+    }
+
+    // Play Ball Catch / Trap sound (Catching SFX)
+    playCatch() {
+        if (!this.enabled) return;
+        this.ensureContext();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+
+        // Leather trap thud
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(65, now + 0.09);
+
+        gain.gain.setValueAtTime(0.45, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.1);
+
+        // Soft turf tap
+        const tapOsc = this.ctx.createOscillator();
+        const tapGain = this.ctx.createGain();
+
+        tapOsc.type = 'sine';
+        tapOsc.frequency.setValueAtTime(450, now);
+        tapOsc.frequency.exponentialRampToValueAtTime(120, now + 0.05);
+
+        tapGain.gain.setValueAtTime(0.25, now);
+        tapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        tapOsc.connect(tapGain);
+        tapGain.connect(this.ctx.destination);
+
+        tapOsc.start(now);
+        tapOsc.stop(now + 0.06);
     }
 
     // Referee Whistle

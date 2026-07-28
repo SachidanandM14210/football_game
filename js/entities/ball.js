@@ -59,7 +59,7 @@ export class Ball {
         }
         
         this.isMoving = true;
-        sound.playKick(power / 10);
+        sound.playPass(power / 10);
     }
 
     update() {
