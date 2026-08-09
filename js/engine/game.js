@@ -39,6 +39,7 @@ export class GameEngine {
         };
 
         this.activeDefenderIndex = 5; // 0-4 attackers, 5 center defender
+        this.defenderTriggered = false;
     }
 
     init(mode = 'solo', numHumans = 1, difficulty = 'medium') {
@@ -49,6 +50,7 @@ export class GameEngine {
         this.score = 0;
         this.passStreak = 0;
         this.comboMultiplier = 1;
+        this.defenderTriggered = false;
 
         this.resizePitch();
         this.setupEntities();
@@ -105,6 +107,7 @@ export class GameEngine {
         const defenderIsHuman = false;
         this.defender = new Player(6, 'Maldini', 'defender', defenderIsHuman, 3, '#990000', maldiniInfo);
         this.defender.setPosition(this.pitchCenter.x, this.pitchCenter.y);
+        this.defenderTriggered = false;
 
         // Give Ball to Messi initially (Initial Active Player)
         const startingPlayer = this.players[0];
@@ -123,9 +126,14 @@ export class GameEngine {
         this.players.forEach(p => p.update(this.pitchCenter, this.rondoRadius));
         this.defender.update(this.pitchCenter, this.rondoRadius);
 
-        // 3. Update Defender AI Strategy
+        // 3. Update Defender AI Strategy (only triggered after first pass)
         if (!this.defender.isHuman) {
-            DefenderAI.update(this.defender, this.ball, this.players, this.pitchCenter, this.difficulty, deltaTime);
+            if (this.defenderTriggered) {
+                DefenderAI.update(this.defender, this.ball, this.players, this.pitchCenter, this.difficulty, deltaTime);
+            } else {
+                this.defender.targetX = this.pitchCenter.x;
+                this.defender.targetY = this.pitchCenter.y;
+            }
         }
 
         // 4. Update Ball Physics
@@ -213,6 +221,7 @@ export class GameEngine {
         sound.playInterception();
         sound.playWhistle();
         this.state = 'TURNOVER';
+        this.defenderTriggered = false;
 
         const lastPasser = this.ball.passSender || this.players[0];
 
@@ -241,6 +250,9 @@ export class GameEngine {
         if (!fromPlayer || !targetPlayer || !fromPlayer.hasBall || fromPlayer.id === targetPlayer.id) return;
         if (this.ball.isMoving) return;
 
+        // Activate defender press on the first pass
+        this.defenderTriggered = true;
+
         fromPlayer.hasBall = false;
         fromPlayer.facingAngle = Physics.angleBetween(fromPlayer, targetPlayer);
         
@@ -252,23 +264,8 @@ export class GameEngine {
     }
 
     handleAIPasses(deltaTime) {
-        if (!this.ball.owner) return;
-        const carrier = this.ball.owner;
-
-        // If carrier is AI
-        if (!carrier.isHuman) {
-            this.aiPassTimer += deltaTime;
-            // AI reaction delay before passing (200ms - 400ms)
-            if (this.aiPassTimer > 0.35) {
-                this.aiPassTimer = 0;
-                const target = TeammateAI.chooseSafestPassTarget(carrier, this.players, this.defender);
-                if (target) {
-                    this.executePass(carrier, target);
-                }
-            }
-        } else {
-            this.aiPassTimer = 0;
-        }
+        // Automatic AI pass loop removed so ball stays with receiver until user initiates pass
+        this.aiPassTimer = 0;
     }
 
     handlePointerMove(mouseX, mouseY) {
@@ -294,7 +291,6 @@ export class GameEngine {
         if (this.state !== 'PLAYING' || !this.ball.owner) return;
 
         const carrier = this.ball.owner;
-        if (!carrier.isHuman) return;
 
         let targetToPass = this.hoveredTarget;
 
@@ -326,7 +322,7 @@ export class GameEngine {
     }
 
     handleKeyPress(key) {
-        if (this.state !== 'PLAYING' || !this.ball.owner || !this.ball.owner.isHuman) return;
+        if (this.state !== 'PLAYING' || !this.ball.owner) return;
 
         // Keys 1-5 target specific teammate number!
         const num = parseInt(key, 10);

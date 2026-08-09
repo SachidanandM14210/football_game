@@ -8,6 +8,8 @@ export class Renderer {
         this.ctx = canvas.getContext('2d');
         this.particles = [];
         this.floatingTexts = [];
+        this.messiImg = new Image();
+        this.messiImg.src = 'images/messi.png';
     }
 
     resize(width, height) {
@@ -209,137 +211,159 @@ export class Renderer {
         ctx.stroke();
 
         // 5. Big Caricature Head
-        ctx.fillStyle = p.skinColor || '#f5cda7';
-        ctx.beginPath();
-        ctx.arc(p.x, p.y - 6, headR, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y - 6, headR, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // 6. Character Specific Hairstyles & Comedy Details
-        ctx.fillStyle = p.hairColor || '#1a1a1a';
-
-        if (p.style === 'messi') {
-            // Messi Brown Comb-Over
+        if (p.style === 'messi' && this.messiImg.complete && this.messiImg.naturalWidth !== 0) {
+            // Draw custom Messi picture avatar in small scale
+            ctx.save();
             ctx.beginPath();
-            ctx.arc(p.x - 2, p.y - 12, headR * 0.95, Math.PI * 0.8, Math.PI * 1.95);
-            ctx.fill();
+            ctx.arc(p.x, p.y - 6, headR + 2, 0, Math.PI * 2);
+            ctx.clip();
 
-            // Messi Big Reddish-Brown Beard
-            ctx.fillStyle = '#8b4513';
+            const imgDim = (headR + 4) * 2;
+            ctx.drawImage(this.messiImg, p.x - imgDim / 2, (p.y - 6) - imgDim / 2, imgDim, imgDim);
+            ctx.restore();
+
+            // Head border ring & captain armband
+            ctx.strokeStyle = '#ff007f';
+            ctx.lineWidth = 2.5;
             ctx.beginPath();
-            ctx.arc(p.x, p.y - 2, headR * 0.9, 0.2, Math.PI - 0.2);
-            ctx.fill();
+            ctx.arc(p.x, p.y - 6, headR + 2, 0, Math.PI * 2);
+            ctx.stroke();
 
-            // Mouth inside beard
-            ctx.fillStyle = '#121212';
-            ctx.beginPath();
-            ctx.arc(p.x, p.y + 4, 3, 0, Math.PI);
-            ctx.fill();
-
-            // Captain Armband
             ctx.fillStyle = '#ff9100';
             ctx.fillRect(p.x - 12, bodyY + 3, 5, 8);
-        } else if (p.style === 'mbappe') {
-            // Mbappé Buzzcut + White Headband
+        } else {
+            ctx.fillStyle = p.skinColor || '#f5cda7';
             ctx.beginPath();
-            ctx.arc(p.x, p.y - 8, headR * 0.98, Math.PI * 0.85, Math.PI * 2.15);
+            ctx.arc(p.x, p.y - 6, headR, 0, Math.PI * 2);
             ctx.fill();
 
-            // White Headband
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(p.x - headR + 1, p.y - 12, headR * 2 - 2, 5);
-
-            // Cheerful Wide Smile
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(p.x, p.y + 3, 6, 0, Math.PI);
-            ctx.fill();
-            ctx.strokeStyle = '#121212';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-        } else if (p.style === 'ronaldo') {
-            // CR7 Sharp Fade Haircut
-            ctx.beginPath();
-            ctx.arc(p.x + 2, p.y - 10, headR * 0.92, Math.PI * 0.8, Math.PI * 2.05);
-            ctx.fill();
-
-            // Ear Diamond Stud Sparkle
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath();
-            ctx.arc(p.x - headR - 2, p.y + 2, 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Confident Smirk
             ctx.strokeStyle = '#121212';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(p.x + 2, p.y + 3, 5, 0.2, Math.PI * 0.8);
+            ctx.arc(p.x, p.y - 6, headR, 0, Math.PI * 2);
             ctx.stroke();
-        } else if (p.style === 'neymar') {
-            // Neymar Blonde Curly Top
-            ctx.fillStyle = p.hairColor || '#e0c068';
+
+            // 6. Character Specific Hairstyles & Comedy Details
+            ctx.fillStyle = p.hairColor || '#1a1a1a';
+
+            if (p.style === 'messi') {
+                // Messi Brown Comb-Over
+                ctx.beginPath();
+                ctx.arc(p.x - 2, p.y - 12, headR * 0.95, Math.PI * 0.8, Math.PI * 1.95);
+                ctx.fill();
+
+                // Messi Big Reddish-Brown Beard
+                ctx.fillStyle = '#8b4513';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y - 2, headR * 0.9, 0.2, Math.PI - 0.2);
+                ctx.fill();
+
+                // Mouth inside beard
+                ctx.fillStyle = '#121212';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y + 4, 3, 0, Math.PI);
+                ctx.fill();
+
+                // Captain Armband
+                ctx.fillStyle = '#ff9100';
+                ctx.fillRect(p.x - 12, bodyY + 3, 5, 8);
+            } else if (p.style === 'mbappe') {
+                // Mbappé Buzzcut + White Headband
+                ctx.beginPath();
+                ctx.arc(p.x, p.y - 8, headR * 0.98, Math.PI * 0.85, Math.PI * 2.15);
+                ctx.fill();
+
+                // White Headband
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(p.x - headR + 1, p.y - 12, headR * 2 - 2, 5);
+
+                // Cheerful Wide Smile
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y + 3, 6, 0, Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#121212';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            } else if (p.style === 'ronaldo') {
+                // CR7 Sharp Fade Haircut
+                ctx.beginPath();
+                ctx.arc(p.x + 2, p.y - 10, headR * 0.92, Math.PI * 0.8, Math.PI * 2.05);
+                ctx.fill();
+
+                // Ear Diamond Stud Sparkle
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(p.x - headR - 2, p.y + 2, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Confident Smirk
+                ctx.strokeStyle = '#121212';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(p.x + 2, p.y + 3, 5, 0.2, Math.PI * 0.8);
+                ctx.stroke();
+            } else if (p.style === 'neymar') {
+                // Neymar Blonde Curly Top
+                ctx.fillStyle = p.hairColor || '#e0c068';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y - 10, headR * 0.9, Math.PI * 0.75, Math.PI * 2.25);
+                ctx.fill();
+
+                // Dark Headband
+                ctx.fillStyle = '#121212';
+                ctx.fillRect(p.x - headR + 2, p.y - 8, headR * 2 - 4, 4);
+            } else if (p.style === 'haaland') {
+                // Haaland Bright Blonde Hair
+                ctx.fillStyle = '#f7e28b';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y - 8, headR, Math.PI * 0.9, Math.PI * 2.1);
+                ctx.fill();
+
+                // Viking Topknot Ponytail
+                ctx.beginPath();
+                ctx.arc(p.x, p.y - headR - 10, 6, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Default Hair
+                ctx.beginPath();
+                ctx.arc(p.x, p.y - 8, headR, Math.PI, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 7. Expressive Caricature Eyes
+            const eyeOffset = 6;
+            const eyeY = p.y - 6;
+            const eyeDirX = Math.cos(p.facingAngle) * 2.5;
+            const eyeDirY = Math.sin(p.facingAngle) * 2.5;
+
+            ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.arc(p.x, p.y - 10, headR * 0.9, Math.PI * 0.75, Math.PI * 2.25);
+            ctx.arc(p.x - eyeOffset, eyeY, 4.5, 0, Math.PI * 2);
+            ctx.arc(p.x + eyeOffset, eyeY, 4.5, 0, Math.PI * 2);
             ctx.fill();
 
-            // Dark Headband
+            ctx.strokeStyle = '#121212';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Pupils
             ctx.fillStyle = '#121212';
-            ctx.fillRect(p.x - headR + 2, p.y - 8, headR * 2 - 4, 4);
-        } else if (p.style === 'haaland') {
-            // Haaland Bright Blonde Hair
-            ctx.fillStyle = '#f7e28b';
             ctx.beginPath();
-            ctx.arc(p.x, p.y - 8, headR, Math.PI * 0.9, Math.PI * 2.1);
+            ctx.arc(p.x - eyeOffset + eyeDirX, eyeY + eyeDirY, 2.2, 0, Math.PI * 2);
+            ctx.arc(p.x + eyeOffset + eyeDirX, eyeY + eyeDirY, 2.2, 0, Math.PI * 2);
             ctx.fill();
 
-            // Viking Topknot Ponytail
+            // Eyebrows
+            ctx.strokeStyle = p.hairColor || '#121212';
+            ctx.lineWidth = 2.5;
             ctx.beginPath();
-            ctx.arc(p.x, p.y - headR - 10, 6, 0, Math.PI * 2);
-            ctx.fill();
-        } else {
-            // Default Hair
-            ctx.beginPath();
-            ctx.arc(p.x, p.y - 8, headR, Math.PI, Math.PI * 2);
-            ctx.fill();
+            ctx.moveTo(p.x - eyeOffset - 4, eyeY - 6);
+            ctx.lineTo(p.x - eyeOffset + 3, eyeY - 6);
+            ctx.moveTo(p.x + eyeOffset - 3, eyeY - 6);
+            ctx.lineTo(p.x + eyeOffset + 4, eyeY - 6);
+            ctx.stroke();
         }
-
-        // 7. Expressive Caricature Eyes
-        const eyeOffset = 6;
-        const eyeY = p.y - 6;
-        const eyeDirX = Math.cos(p.facingAngle) * 2.5;
-        const eyeDirY = Math.sin(p.facingAngle) * 2.5;
-
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(p.x - eyeOffset, eyeY, 4.5, 0, Math.PI * 2);
-        ctx.arc(p.x + eyeOffset, eyeY, 4.5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = '#121212';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // Pupils
-        ctx.fillStyle = '#121212';
-        ctx.beginPath();
-        ctx.arc(p.x - eyeOffset + eyeDirX, eyeY + eyeDirY, 2.2, 0, Math.PI * 2);
-        ctx.arc(p.x + eyeOffset + eyeDirX, eyeY + eyeDirY, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Eyebrows
-        ctx.strokeStyle = p.hairColor || '#121212';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(p.x - eyeOffset - 4, eyeY - 6);
-        ctx.lineTo(p.x - eyeOffset + 3, eyeY - 6);
-        ctx.moveTo(p.x + eyeOffset - 3, eyeY - 6);
-        ctx.lineTo(p.x + eyeOffset + 4, eyeY - 6);
-        ctx.stroke();
 
         // 8. Nameplate & Active Indicator
         ctx.fillStyle = '#ffffff';

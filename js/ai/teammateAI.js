@@ -32,8 +32,11 @@ export class TeammateAI {
         });
     }
 
-    static chooseSafestPassTarget(ballCarrier, teammates, defender) {
-        const candidates = teammates.filter(p => p.id !== ballCarrier.id);
+    static chooseSafestPassTarget(ballCarrier, teammates, defender, passSender = null) {
+        let candidates = teammates.filter(p => p.id !== ballCarrier.id && (!passSender || p.id !== passSender.id));
+        if (candidates.length === 0) {
+            candidates = teammates.filter(p => p.id !== ballCarrier.id);
+        }
         if (candidates.length === 0) return null;
 
         let bestCandidate = null;

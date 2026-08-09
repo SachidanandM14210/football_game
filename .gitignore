@@ -1,3 +1,11 @@
+# Flutter & Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+
 # Operating System files
 .DS_Store
 Thumbs.db
@@ -19,3 +27,4 @@ yarn-error.log*
 .gemini/
 .agents/
 *.tmp
+

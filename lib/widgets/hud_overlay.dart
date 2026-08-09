@@ -1,0 +1,271 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../engine/game_engine.dart';
+
+class HudOverlay extends StatelessWidget {
+  final GameEngine game;
+  final VoidCallback onPause;
+  final VoidCallback onToggleSound;
+
+  const HudOverlay({
+    super.key,
+    required this.game,
+    required this.onPause,
+    required this.onToggleSound,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (game.state != 'PLAYING') return const SizedBox.shrink();
+
+    final progress = ((game.passStreak % 10) / 10.0).clamp(0.0, 1.0);
+    final activeCarrier = game.ball.owner;
+
+    return SafeArea(
+      child: Stack(
+        children: [
+          // Top HUD Bar
+          Positioned(
+            top: 16,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Score Card
+                _buildGlassCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'PASSES',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF8E9BAE),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      Text(
+                        '${game.score}',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Combo Card
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    child: _buildGlassCard(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'COMBO MULTIPLIER',
+                                style: GoogleFonts.outfit(
+                                  color: const Color(0xFF8E9BAE),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFC800),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${game.comboMultiplier}x',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              backgroundColor: Colors.white.withOpacity(0.1),
+                              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFC800)),
+                              minHeight: 6,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${game.passStreak % 10} / 10 passes to next tier',
+                            style: GoogleFonts.inter(
+                              color: const Color(0xFF8E9BAE),
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Best Streak Card
+                _buildGlassCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'BEST STREAK',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFF8E9BAE),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        '${game.bestStreak}',
+                        style: GoogleFonts.outfit(
+                          color: const Color(0xFFFFC800),
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Bottom HUD Bar
+          Positioned(
+            bottom: 16,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Defender Badge Card
+                _buildGlassCard(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.shield, color: Color(0xFFFF3B5C), size: 20),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'DEFENDER',
+                            style: GoogleFonts.outfit(color: const Color(0xFF8E9BAE), fontSize: 10, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'Maldini (#3)',
+                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0x33FF3B5C),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: const Color(0xFFFF3B5C)),
+                        ),
+                        child: Text(
+                          game.difficulty.toUpperCase(),
+                          style: GoogleFonts.outfit(color: const Color(0xFFFF3B5C), fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Active Ball Carrier Badge
+                if (activeCarrier != null)
+                  _buildGlassCard(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 10,
+                          height: 10,
+                          decoration: const BoxDecoration(color: Color(0xFF00FF87), shape: BoxShape.circle),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          activeCarrier.name,
+                          style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Control Action Buttons
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: onToggleSound,
+                      icon: Icon(
+                        game.sfx ? Icons.volume_up : Icons.volume_off,
+                        color: Colors.white,
+                      ),
+                      style: IconButton.styleFrom(backgroundColor: Colors.white.withOpacity(0.1)),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: onPause,
+                      icon: const Icon(Icons.pause, color: Colors.white),
+                      style: IconButton.styleFrom(backgroundColor: Colors.white.withOpacity(0.1)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Control Tip Center Bottom
+          Positioned(
+            bottom: 72,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: Text(
+                  '💡 Tap teammate or use keys 1-5 / Space to pass!',
+                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGlassCard({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xCC0D1F17),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.12)),
+        boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 10)],
+      ),
+      child: child,
+    );
+  }
+}
