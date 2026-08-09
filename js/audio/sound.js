@@ -55,15 +55,17 @@ class SoundEngine {
         osc.start(now);
         osc.stop(now + 0.15);
 
-        // Air swoosh / boot click pop
-        const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.04, this.ctx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < noiseBuffer.length; i++) {
-            output[i] = Math.random() * 2 - 1;
+        // Air swoosh / boot click pop (re-use cached buffer)
+        if (!this.cachedNoiseBuffer) {
+            this.cachedNoiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.04, this.ctx.sampleRate);
+            const output = this.cachedNoiseBuffer.getChannelData(0);
+            for (let i = 0; i < this.cachedNoiseBuffer.length; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
         }
 
         const noise = this.ctx.createBufferSource();
-        noise.buffer = noiseBuffer;
+        noise.buffer = this.cachedNoiseBuffer;
 
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'bandpass';

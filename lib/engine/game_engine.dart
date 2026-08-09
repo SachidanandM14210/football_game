@@ -250,11 +250,16 @@ class GameEngine extends ChangeNotifier {
       }
     }
 
+    final prevOwner = ball.owner;
     ball.update();
     checkBallInteractions();
     handleAIPasses(deltaTime);
     updateEffects();
-    notifyListeners();
+
+    // Rebuild UI only if ball owner changed or effects/state active to prevent main thread stutter
+    if (prevOwner != ball.owner || floatingTexts.isNotEmpty || particles.isNotEmpty) {
+      notifyListeners();
+    }
   }
 
   void checkBallInteractions() {

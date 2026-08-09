@@ -26,89 +26,98 @@ class HudOverlay extends StatelessWidget {
         children: [
           // Top HUD Bar
           Positioned(
-            top: 16,
-            left: 16,
-            right: 16,
+            top: 8,
+            left: 8,
+            right: 8,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Score Card
-                _buildGlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'PASSES',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF8E9BAE),
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.1,
+                Flexible(
+                  child: _buildGlassCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'PASSES',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF8E9BAE),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.0,
+                          ),
                         ),
-                      ),
-                      Text(
-                        '${game.score}',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
+                        Text(
+                          '${game.score}',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
 
                 // Combo Card
                 Expanded(
+                  flex: 2,
                   child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    margin: const EdgeInsets.symmetric(horizontal: 6),
                     child: _buildGlassCard(
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'COMBO MULTIPLIER',
-                                style: GoogleFonts.outfit(
-                                  color: const Color(0xFF8E9BAE),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
+                              Flexible(
+                                child: Text(
+                                  'COMBO',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.outfit(
+                                    color: const Color(0xFF8E9BAE),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFFFFC800),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
                                   '${game.comboMultiplier}x',
                                   style: GoogleFonts.outfit(
                                     color: Colors.black,
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w900,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
                               value: progress,
                               backgroundColor: Colors.white.withOpacity(0.1),
                               valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFFC800)),
-                              minHeight: 6,
+                              minHeight: 5,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
-                            '${game.passStreak % 10} / 10 passes to next tier',
+                            '${game.passStreak % 10}/10 to next',
+                            overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.inter(
                               color: const Color(0xFF8E9BAE),
-                              fontSize: 10,
+                              fontSize: 9,
                             ),
                           ),
                         ],
@@ -118,27 +127,30 @@ class HudOverlay extends StatelessWidget {
                 ),
 
                 // Best Streak Card
-                _buildGlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'BEST STREAK',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFF8E9BAE),
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                Flexible(
+                  child: _buildGlassCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'BEST',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFF8E9BAE),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        '${game.bestStreak}',
-                        style: GoogleFonts.outfit(
-                          color: const Color(0xFFFFC800),
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
+                        Text(
+                          '${game.bestStreak}',
+                          style: GoogleFonts.outfit(
+                            color: const Color(0xFFFFC800),
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -147,82 +159,102 @@ class HudOverlay extends StatelessWidget {
 
           // Bottom HUD Bar
           Positioned(
-            bottom: 16,
-            left: 16,
-            right: 16,
+            bottom: 8,
+            left: 8,
+            right: 8,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Defender Badge Card
-                _buildGlassCard(
-                  child: Row(
-                    children: [
-                      const Icon(Icons.shield, color: Color(0xFFFF3B5C), size: 20),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'DEFENDER',
-                            style: GoogleFonts.outfit(color: const Color(0xFF8E9BAE), fontSize: 10, fontWeight: FontWeight.bold),
+                Flexible(
+                  child: _buildGlassCard(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.shield, color: Color(0xFFFF3B5C), size: 16),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'DEFENDER',
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.outfit(color: const Color(0xFF8E9BAE), fontSize: 9, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                'Maldini',
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                            ],
                           ),
-                          Text(
-                            'Maldini (#3)',
-                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: const Color(0x33FF3B5C),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: const Color(0xFFFF3B5C)),
                           ),
-                        ],
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0x33FF3B5C),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: const Color(0xFFFF3B5C)),
+                          child: Text(
+                            game.difficulty.toUpperCase(),
+                            style: GoogleFonts.outfit(color: const Color(0xFFFF3B5C), fontSize: 9, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                        child: Text(
-                          game.difficulty.toUpperCase(),
-                          style: GoogleFonts.outfit(color: const Color(0xFFFF3B5C), fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
 
                 // Active Ball Carrier Badge
                 if (activeCarrier != null)
-                  _buildGlassCard(
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(color: Color(0xFF00FF87), shape: BoxShape.circle),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          activeCarrier.name,
-                          style: GoogleFonts.outfit(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                  Flexible(
+                    child: _buildGlassCard(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(color: Color(0xFF00FF87), shape: BoxShape.circle),
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              activeCarrier.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
                 // Control Action Buttons
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
+                      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                      padding: EdgeInsets.zero,
                       onPressed: onToggleSound,
                       icon: Icon(
                         game.sfx ? Icons.volume_up : Icons.volume_off,
                         color: Colors.white,
+                        size: 20,
                       ),
                       style: IconButton.styleFrom(backgroundColor: Colors.white.withOpacity(0.1)),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     IconButton(
+                      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                      padding: EdgeInsets.zero,
                       onPressed: onPause,
-                      icon: const Icon(Icons.pause, color: Colors.white),
+                      icon: const Icon(Icons.pause, color: Colors.white, size: 20),
                       style: IconButton.styleFrom(backgroundColor: Colors.white.withOpacity(0.1)),
                     ),
                   ],
