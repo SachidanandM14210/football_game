@@ -17,71 +17,115 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div id="app-viewport">
-        <!-- Canvas Background Game Field -->
-        <canvas id="game-canvas"></canvas>
+    <!-- Floating View Toggle Switch (Desktop) -->
+    <button id="btn-toggle-view-mode" class="desktop-view-toggle" title="Toggle Phone / Fullscreen view">
+        <i class="fa-solid fa-mobile-screen-button"></i> <span id="toggle-view-text">Full Screen</span>
+    </button>
 
-        <!-- Dynamic Ambient Lighting & Stadium Smoke overlay -->
-        <div class="stadium-overlay"></div>
-
-        <!-- HUD UI Overlay (Visible during active gameplay) -->
-        <div id="hud-overlay" class="hidden">
-            <div class="hud-top-bar">
-                <div class="hud-card score-card">
-                    <span class="hud-label">PASSES</span>
-                    <span id="hud-score-value" class="hud-value">0</span>
-                </div>
-
-                <div class="hud-card combo-card">
-                    <div class="combo-title-row">
-                        <span class="hud-label">COMBO MULTIPLIER</span>
-                        <span id="hud-combo-multiplier" class="combo-badge">1x</span>
-                    </div>
-                    <div class="combo-bar-wrapper">
-                        <div id="hud-combo-progress" class="combo-bar-fill" style="width: 0%;"></div>
-                    </div>
-                    <span id="hud-combo-streak-text" class="combo-subtext">0 / 10 passes to next tier</span>
-                </div>
-
-                <div class="hud-card high-score-card">
-                    <span class="hud-label">BEST STREAK</span>
-                    <span id="hud-best-streak" class="hud-value gold-text">0</span>
-                </div>
+    <!-- Mobile Phone Shell Chassis -->
+    <div id="phone-chassis" class="phone-frame-mode">
+        <!-- Phone Speaker & Status Bar -->
+        <div id="phone-status-bar" class="phone-status-bar">
+            <span id="phone-clock" class="phone-time">12:00</span>
+            <div class="dynamic-island">
+                <span class="camera-lens"></span>
             </div>
-
-            <div class="hud-bottom-bar">
-                <div class="hud-card defender-info-card">
-                    <span class="hud-label">DEFENDER</span>
-                    <div class="defender-badge">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span id="hud-defender-name">AI Defender</span>
-                    </div>
-                    <span id="hud-difficulty-tag" class="difficulty-tag tag-medium">MEDIUM</span>
-                </div>
-
-                <div class="hud-card possession-card">
-                    <span class="hud-label">CURRENT BALL CARRIER</span>
-                    <div id="hud-ball-carrier" class="carrier-badge">
-                        <span class="player-dot p1-dot"></span>
-                        <span id="hud-carrier-name">Player 1 (You)</span>
-                    </div>
-                </div>
-
-                <div class="hud-action-btns">
-                    <button id="btn-sound-toggle" class="icon-btn" title="Toggle Sound">
-                        <i class="fa-solid fa-volume-high"></i>
-                    </button>
-                    <button id="btn-pause-game" class="icon-btn" title="Pause Game">
-                        <i class="fa-solid fa-pause"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Floating Controls Tip -->
-            <div id="controls-tip" class="controls-tip-box">
-                <i class="fa-solid fa-hand-pointer"></i> Click teammate, press keys <strong>1-5</strong>, or use <strong>Mouse Aim + Left Click / Space</strong> to pass!
+            <div class="status-icons">
+                <i class="fa-solid fa-signal"></i>
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-full"></i>
             </div>
         </div>
+
+        <div id="app-viewport">
+            <!-- Canvas Background Game Field -->
+            <canvas id="game-canvas"></canvas>
+
+            <!-- Dynamic Ambient Lighting & Stadium Smoke overlay -->
+            <div class="stadium-overlay"></div>
+
+            <!-- HUD UI Overlay (Visible during active gameplay) -->
+            <div id="hud-overlay" class="hidden">
+                <div class="hud-top-bar">
+                    <div class="hud-card score-card">
+                        <span class="hud-label">PASSES</span>
+                        <span id="hud-score-value" class="hud-value">0</span>
+                    </div>
+
+                    <div class="hud-card combo-card">
+                        <div class="combo-title-row">
+                            <span class="hud-label">COMBO MULTIPLIER</span>
+                            <span id="hud-combo-multiplier" class="combo-badge">1x</span>
+                        </div>
+                        <div class="combo-bar-wrapper">
+                            <div id="hud-combo-progress" class="combo-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <span id="hud-combo-streak-text" class="combo-subtext">0 / 10 passes to next tier</span>
+                    </div>
+
+                    <div class="hud-card high-score-card">
+                        <span class="hud-label">BEST STREAK</span>
+                        <span id="hud-best-streak" class="hud-value gold-text">0</span>
+                    </div>
+                </div>
+
+                <div class="hud-bottom-bar">
+                    <div class="hud-card defender-info-card">
+                        <span class="hud-label">DEFENDER</span>
+                        <div class="defender-badge">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span id="hud-defender-name">AI Defender</span>
+                        </div>
+                        <span id="hud-difficulty-tag" class="difficulty-tag tag-medium">MEDIUM</span>
+                    </div>
+
+                    <div class="hud-card possession-card">
+                        <span class="hud-label">CURRENT BALL CARRIER</span>
+                        <div id="hud-ball-carrier" class="carrier-badge">
+                            <span class="player-dot p1-dot"></span>
+                            <span id="hud-carrier-name">Player 1 (You)</span>
+                        </div>
+                    </div>
+
+                    <div class="hud-action-btns">
+                        <button id="btn-sound-toggle" class="icon-btn" title="Toggle Sound">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                        <button id="btn-pause-game" class="icon-btn" title="Pause Game">
+                            <i class="fa-solid fa-pause"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Quick Thumb Pass Selector -->
+                <div id="mobile-quick-pass-bar" class="mobile-pass-bar">
+                    <button class="mobile-pass-btn" data-player="1">
+                        <span class="p-num">1</span>
+                        <span class="p-name">Messi</span>
+                    </button>
+                    <button class="mobile-pass-btn" data-player="2">
+                        <span class="p-num">2</span>
+                        <span class="p-name">Mbappé</span>
+                    </button>
+                    <button class="mobile-pass-btn" data-player="3">
+                        <span class="p-num">3</span>
+                        <span class="p-name">Ronaldo</span>
+                    </button>
+                    <button class="mobile-pass-btn" data-player="4">
+                        <span class="p-num">4</span>
+                        <span class="p-name">Neymar</span>
+                    </button>
+                    <button class="mobile-pass-btn" data-player="5">
+                        <span class="p-num">5</span>
+                        <span class="p-name">Haaland</span>
+                    </button>
+                </div>
+
+                <!-- Floating Controls Tip -->
+                <div id="controls-tip" class="controls-tip-box">
+                    <i class="fa-solid fa-hand-pointer"></i> Tap player button, click teammate, or aim to pass!
+                </div>
+            </div>
 
         <!-- MAIN MENU MODAL -->
         <div id="main-menu-modal" class="modal-overlay">
@@ -325,7 +369,8 @@
             </div>
         </div>
 
-    </div>
+        </div> <!-- #app-viewport -->
+    </div> <!-- #phone-chassis -->
 
     <!-- Application Script Bundles -->
     <script type="module" src="js/app.js"></script>

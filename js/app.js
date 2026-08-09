@@ -33,6 +33,11 @@ class App {
         this.pauseModal = document.getElementById('pause-modal');
         this.gameOverModal = document.getElementById('game-over-modal');
 
+        // Phone Chassis & View Toggle
+        this.phoneChassis = document.getElementById('phone-chassis');
+        this.btnToggleView = document.getElementById('btn-toggle-view-mode');
+        this.toggleViewText = document.getElementById('toggle-view-text');
+
         // HUD Elements
         this.hudScoreValue = document.getElementById('hud-score-value');
         this.hudComboMultiplier = document.getElementById('hud-combo-multiplier');
@@ -48,10 +53,39 @@ class App {
         const best = localStorage.getItem('rondo_best_streak') || '0';
         this.menuRecordScore.innerText = best;
         this.hudBestStreak.innerText = best;
+
+        this.startPhoneClock();
+    }
+
+    startPhoneClock() {
+        const updateClock = () => {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const mins = now.getMinutes().toString().padStart(2, '0');
+            const clockElem = document.getElementById('phone-clock');
+            if (clockElem) clockElem.innerText = `${hours}:${mins}`;
+        };
+        updateClock();
+        setInterval(updateClock, 10000);
     }
 
     bindEvents() {
         window.addEventListener('resize', () => this.resize());
+
+        // Desktop View Mode Toggle (Phone View vs Fullscreen)
+        if (this.btnToggleView) {
+            this.btnToggleView.addEventListener('click', () => {
+                sound.playClick();
+                if (this.phoneChassis.classList.contains('fullscreen-mode')) {
+                    this.phoneChassis.classList.remove('fullscreen-mode');
+                    this.toggleViewText.innerText = 'Full Screen';
+                } else {
+                    this.phoneChassis.classList.add('fullscreen-mode');
+                    this.toggleViewText.innerText = 'Phone View';
+                }
+                setTimeout(() => this.resize(), 100);
+            });
+        }
 
         // Pointer / Mouse events on canvas
         this.canvas.addEventListener('mousemove', (e) => {
@@ -63,6 +97,30 @@ class App {
             sound.ensureContext();
             const rect = this.canvas.getBoundingClientRect();
             this.game.handlePointerClick(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        // Touch events on canvas for low-latency mobile touch
+        this.canvas.addEventListener('touchstart', (e) => {
+            sound.ensureContext();
+            if (e.touches.length > 0) {
+                const touch = e.touches[0];
+                const rect = this.canvas.getBoundingClientRect();
+                this.game.handlePointerClick(touch.clientX - rect.left, touch.clientY - rect.top);
+            }
+        }, { passive: true });
+
+        // Mobile Quick Thumb Pass Selector Buttons
+        document.querySelectorAll('.mobile-pass-btn').forEach(btn => {
+            const handlePassBtn = (e) => {
+                e.preventDefault();
+                sound.ensureContext();
+                const playerNum = btn.dataset.player;
+                if (playerNum) {
+                    this.game.handleKeyPress(playerNum);
+                }
+            };
+            btn.addEventListener('click', handlePassBtn);
+            btn.addEventListener('touchstart', handlePassBtn, { passive: false });
         });
 
         // Keybindings
@@ -293,8 +351,9 @@ class App {
     }
 
     resize() {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        const viewport = this.canvas.parentElement || document.body;
+        const width = viewport.clientWidth || window.innerWidth;
+        const height = viewport.clientHeight || window.innerHeight;
         this.renderer.resize(width, height);
         this.game.resizePitch();
     }
